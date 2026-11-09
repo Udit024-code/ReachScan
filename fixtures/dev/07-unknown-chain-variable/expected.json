@@ -1,0 +1,7 @@
+{
+  "description": "merge is reached through a lodash chain wrapper stored in a variable, never as _.merge. Until library objects are modelled this must be unknown, never unreachable.",
+  "target": "lodash#merge",
+  "verdict": "unknown",
+  "reasonCodes": ["PACKAGE_REFERENCE_ESCAPES"],
+  "blockerTexts": ["wrapped.merge"]
+}

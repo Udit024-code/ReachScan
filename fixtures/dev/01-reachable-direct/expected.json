@@ -1,0 +1,7 @@
+{
+  "description": "Project B from the design doc: a POST route passes the request body into _.merge through a service function.",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["POST /settings", "updateSettings()", "_.merge()"]
+}

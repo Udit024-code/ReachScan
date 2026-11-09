@@ -1,0 +1,7 @@
+{
+  "description": "The function that calls _.merge is stored in an object and called through handlers[action](...), which a static analyzer can't resolve. It must be unknown, never unreachable.",
+  "target": "lodash#merge",
+  "verdict": "unknown",
+  "reasonCodes": ["MAY_BE_CALLED_DYNAMICALLY"],
+  "blockerTexts": ["save()", "handlers[action]"]
+}

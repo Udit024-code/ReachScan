@@ -1,0 +1,6 @@
+{
+  "description": "_.merge is called, but only inside a function that is never called or referenced. The unresolved res.json() call can't reach it because the function never escapes.",
+  "target": "lodash#merge",
+  "verdict": "unreachable",
+  "reasonCodes": ["NO_PATH_FROM_ENTRY"]
+}
