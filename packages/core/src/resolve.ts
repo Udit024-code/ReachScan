@@ -1,4 +1,5 @@
 import { builtinModules } from "node:module";
+import path from "node:path";
 import {
   type ArrowFunction,
   type ConstructorDeclaration,
@@ -10,6 +11,7 @@ import {
   type Symbol as MorphSymbol,
   Node,
   type SetAccessorDeclaration,
+  type SourceFile,
   SyntaxKind,
 } from "ts-morph";
 import type { ExternalRef } from "./types.ts";
@@ -257,6 +259,57 @@ export function functionFromExpression(node: Node, depth = 0): FunctionLike | nu
   if (Node.isPropertyAccessExpression(expr)) {
     return functionFromSymbol(expr.getNameNode().getSymbol(), depth + 1);
   }
+  // require("./routes") evaluates to whatever routes.js assigns to module.exports.
+  if (Node.isCallExpression(expr)) {
+    const spec = requireSpecifier(expr);
+    const target = spec?.startsWith(".") ? resolveRelativeModule(expr.getSourceFile(), spec) : undefined;
+    return target ? moduleExportedFunction(target, depth + 1) : null;
+  }
+  return null;
+}
+
+const MODULE_SUFFIXES = [
+  "",
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  "/index.ts",
+  "/index.tsx",
+  "/index.js",
+];
+
+/** Finds the scanned source file a relative specifier points to, trying the usual extensions. */
+export function resolveRelativeModule(from: SourceFile, specifier: string): SourceFile | undefined {
+  const base = path.posix.join(path.posix.dirname(from.getFilePath()), specifier);
+  const project = from.getProject();
+  for (const suffix of MODULE_SUFFIXES) {
+    const sf = project.getSourceFile(`${base}${suffix}`);
+    if (sf) return sf;
+  }
+  return undefined;
+}
+
+/** The function a module exports as a whole: `module.exports = fn`, `export = fn` or `export default fn`. */
+function moduleExportedFunction(sf: SourceFile, depth: number): FunctionLike | null {
+  for (const statement of sf.getStatements()) {
+    if (Node.isExpressionStatement(statement)) {
+      const expr = statement.getExpression();
+      if (Node.isBinaryExpression(expr) && expr.getLeft().getText() === "module.exports") {
+        const fn = functionFromExpression(expr.getRight(), depth + 1);
+        if (fn) return fn;
+      }
+    }
+    if (Node.isExportAssignment(statement)) {
+      const fn = functionFromExpression(statement.getExpression(), depth + 1);
+      if (fn) return fn;
+    }
+    if (Node.isFunctionDeclaration(statement) && statement.isDefaultExport() && statement.getBody()) {
+      return statement;
+    }
+  }
   return null;
 }
 
@@ -266,6 +319,14 @@ export function functionFromSymbol(symbol: MorphSymbol | undefined, depth = 0): 
   for (const decl of resolved.getDeclarations()) {
     const fn = functionFromDeclaration(decl, depth + 1);
     if (fn) return fn;
+  }
+  // In JS files `const r = require("./x")` can be an alias whose target isn't a function
+  // declaration; fall back to the variable's own initializer.
+  if (resolved !== symbol) {
+    for (const decl of symbol.getDeclarations()) {
+      const fn = functionFromDeclaration(decl, depth + 1);
+      if (fn) return fn;
+    }
   }
   return null;
 }

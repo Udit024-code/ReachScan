@@ -1,0 +1,8 @@
+{
+  "name": "fixture-15-reachable-class-method-middleware-array",
+  "private": true,
+  "dependencies": {
+    "express": "^4.21.2",
+    "lodash": "4.17.15"
+  }
+}

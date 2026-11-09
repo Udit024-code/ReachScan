@@ -1,5 +1,5 @@
 import { type CallExpression, type NewExpression, Node, type SourceFile, SyntaxKind } from "ts-morph";
-import { findExpressEntries } from "./express.ts";
+import { findExpressEntries, isExpressObject } from "./express.ts";
 import { loadProject, relativePath } from "./project.ts";
 import {
   dynamicImportSpecifier,
@@ -253,8 +253,18 @@ function resolveCallee(b: GraphBuilder, call: CallExpression | NewExpression): C
     }
   }
 
+  // app.post(...) where app is a parameter typed as Express. Handlers passed in get callback edges.
+  if (Node.isPropertyAccessExpression(callee) && isExpressObject(callee.getExpression())) {
+    return { kind: "ignored", why: "Express app/router API" };
+  }
+
   if (isFunctionLike(callee)) {
     const fn = b.appFunction(callee);
+    if (fn) return { kind: "internal", functionId: fn.id };
+  }
+  // require("./routes")(app): call the function routes.js exports.
+  if (Node.isCallExpression(callee)) {
+    const fn = b.appFunction(functionFromExpression(callee));
     if (fn) return { kind: "internal", functionId: fn.id };
   }
   if (Node.isCallExpression(callee) || Node.isNewExpression(callee)) {

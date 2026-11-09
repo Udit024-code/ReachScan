@@ -2,7 +2,9 @@
 
 ReachScan tells you which vulnerable dependencies your JavaScript/TypeScript Express app actually calls. It shows the call path as evidence, and it answers **unknown** instead of guessing when it can't be sure.
 
-> Status: week 1. The call-graph core works on small fixture apps for a single target such as `lodash#merge`. Lockfile reading, OSV matching and AI mapping come next.
+> Status: week 2. The call-graph core works on 15 fixture apps for a single target such as `lodash#merge`, with a versioned JSON report. Lockfile reading, OSV matching and AI mapping come next.
+>
+> **[Verdict rules and supported patterns →](docs/verdict-rules.md)**
 
 ## Quick start
 
@@ -13,6 +15,7 @@ npm install
 npm test
 npm run reachscan -- reach fixtures/dev/01-reachable-direct --target lodash#merge
 npm run reachscan -- calls fixtures/dev/01-reachable-direct
+npm run reachscan -- reach fixtures/dev/01-reachable-direct --target lodash#merge --format json --out report.json
 ```
 
 Example output:
@@ -37,7 +40,9 @@ Path:
 
 A false "unreachable" is the worst possible mistake, so when in doubt the answer is unknown. The fixture test suite fails if any fixture gets a false "unreachable".
 
-## How "unreachable" is decided (week 1)
+## How "unreachable" is decided
+
+Short version below; the full rules, reason codes and supported-pattern tables are in [docs/verdict-rules.md](docs/verdict-rules.md).
 
 1. Every call in the app is resolved with the TypeScript compiler (ts-morph) to an app function, a package export, a builtin, or **unresolved** (for example `handlers[action]()` or `require(name)`).
 2. Express route handlers and every file's top-level code are entry points. Functions passed as arguments are assumed to be called.
@@ -57,15 +62,17 @@ packages/core   analyzer: project loading, call graph, Express entry points, ver
 packages/cli    `reachscan` command line
 fixtures/dev    small apps with an expected.json each (verdict, reason codes, path)
                 (fixtures are only parsed, never installed or run)
+docs/           verdict rules, supported patterns, report format
 ```
 
 ## Known limitations
 
 - Reachable means a call path exists, not that the bug is exploitable.
 - Every non-test file's top-level code is assumed to run.
-- Only direct calls to the named export are matched. Linking into the library's internal call graph (week 7) comes later.
+- Only direct calls to the named export are matched. Until the library's internal call graph is linked (week 7), a call to another export that uses the vulnerable code internally (e.g. `_.mergeWith`) is missed.
 - Paths through other packages (transitive dependencies) aren't followed yet.
-- Route prefixes from `app.use("/api", router)` aren't added to route labels yet.
+
+The full list is in [docs/verdict-rules.md](docs/verdict-rules.md#not-handled-yet).
 
 ## License
 

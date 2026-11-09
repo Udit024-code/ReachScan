@@ -70,6 +70,11 @@ function isExpressFactoryCall(node: Node): boolean {
   return ref.member.length === 0 || last === "Router" || last === "default";
 }
 
+/** True when `node` evaluates to an Express app or router. */
+export function isExpressObject(node: Node): boolean {
+  return expressReceiver(node) !== null;
+}
+
 /** Returns route info when `node` evaluates to an Express app or router. */
 function expressReceiver(node: Node, depth = 0): { path: string | null } | null {
   if (depth > 5) return null;

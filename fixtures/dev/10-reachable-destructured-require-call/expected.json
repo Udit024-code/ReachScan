@@ -1,0 +1,7 @@
+{
+  "description": "CommonJS destructuring with a rename (const { merge: deepMerge } = require(\"lodash\")), reached through fn.call(...).",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["POST /jobs", "withDefaults()", "deepMerge()"]
+}

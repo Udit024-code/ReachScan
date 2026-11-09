@@ -1,0 +1,7 @@
+{
+  "description": "Handlers passed as an array (auth middleware + inline handler); the inline handler calls a method on a controller class instance.",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["PUT /settings", "SettingsController.update()", "_.merge()"]
+}
