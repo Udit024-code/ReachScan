@@ -2,16 +2,16 @@
 
 This is the contract for what ReachScan's verdicts mean. Each rule here is checked by a fixture in [`fixtures/dev`](../fixtures/dev); the fixture number is shown in brackets, e.g. [03].
 
-Analyzer version: 0.2.0 · Report schema: 1
+Analyzer version: 0.3.0 · Report schema: 1
 
 ## The four verdicts
 
-| Verdict         | Given when                                                                               | What to do                                                                                |
-| --------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| **reachable**   | A call path from an entry point to the vulnerable export was found.                      | Fix first.                                                                                |
-| **unreachable** | No path exists, and nothing the analyzer failed to follow could lead there.              | Lower priority; still shown.                                                              |
-| **unknown**     | No path was found, but code the analyzer couldn't follow might reach it.                 | Review the listed blockers by hand.                                                       |
-| **unavailable** | The scan failed, the project isn't supported, or no verified vulnerable function exists. | Treat as a normal alert. (Not produced yet: lockfile and advisory stages come in week 3.) |
+| Verdict         | Given when                                                                               | What to do                                                                                                                                             |
+| --------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **reachable**   | A call path from an entry point to the vulnerable export was found.                      | Fix first.                                                                                                                                             |
+| **unreachable** | No path exists, and nothing the analyzer failed to follow could lead there.              | Lower priority; still shown.                                                                                                                           |
+| **unknown**     | No path was found, but code the analyzer couldn't follow might reach it.                 | Review the listed blockers by hand.                                                                                                                    |
+| **unavailable** | The scan failed, the project isn't supported, or no verified vulnerable function exists. | Treat as a normal alert. (Not produced by `reach` yet. `deps` already refuses unsupported projects with exit code 2; joining the two comes in week 8.) |
 
 Two rules override everything else:
 
@@ -126,7 +126,7 @@ These are real gaps. Each one is either already fail-closed (gives unknown) or l
 ```jsonc
 {
   "schemaVersion": 1,
-  "analyzer": { "name": "reachscan", "version": "0.2.0" },
+  "analyzer": { "name": "reachscan", "version": "0.3.0" },
   "generatedAt": "2026-11-09T12:00:00.000Z",
   "project": { "name": "shop-api" }, // folder name only, never an absolute path
   "findings": [

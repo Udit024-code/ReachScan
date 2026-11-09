@@ -38,6 +38,7 @@ describe("JSON report", () => {
     const json = JSON.stringify(report);
     expect(json).not.toContain(path.resolve(fixture).replace(/\\/g, "/"));
     expect(json).not.toContain(path.resolve(fixture));
-    expect(json).not.toMatch(/[A-Za-z]:[\\/]/);
+    // A drive letter on its own (C:\ or C:/), not the "s:/" inside "https://".
+    expect(json).not.toMatch(/(?<![A-Za-z])[A-Za-z]:[\\/]/);
   });
 });

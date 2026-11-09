@@ -1,7 +1,55 @@
 #!/usr/bin/env node
 import { writeFileSync } from "node:fs";
-import { buildCallGraph, buildReport, type CallSite, type Finding, scanTarget } from "@reachscan/core";
+import os from "node:os";
+import path from "node:path";
+import {
+  AdvisoryLookupError,
+  ANALYZER_VERSION,
+  buildCallGraph,
+  buildReport,
+  type CallSite,
+  type DependencyReport,
+  type Finding,
+  OsvApiSource,
+  scanDependencies,
+  scanTarget,
+  UnsupportedProjectError,
+} from "@reachscan/core";
 import { Command, Option } from "commander";
+
+/** %LOCALAPPDATA%\reachscan on Windows, $XDG_CACHE_HOME/reachscan or ~/.cache/reachscan elsewhere. */
+function defaultCacheDir(): string {
+  if (process.env.REACHSCAN_CACHE_DIR) return process.env.REACHSCAN_CACHE_DIR;
+  if (process.platform === "win32" && process.env.LOCALAPPDATA) {
+    return path.join(process.env.LOCALAPPDATA, "reachscan");
+  }
+  return path.join(process.env.XDG_CACHE_HOME ?? path.join(os.homedir(), ".cache"), "reachscan");
+}
+
+function dependencyReportToText(r: DependencyReport): string {
+  const s = r.summary;
+  const lines = [
+    `${r.project.name} · package-lock.json v${r.lockfile.version} · ${r.lockfile.installed} installed packages (${r.lockfile.uniquePackages} unique)`,
+    `${s.vulnerablePackages} vulnerable package${s.vulnerablePackages === 1 ? "" : "s"}, ${s.advisories} advisor${s.advisories === 1 ? "y" : "ies"} (by version only; reachability not checked)`,
+  ];
+  const severities = Object.entries(s.bySeverity).filter(([, n]) => n > 0);
+  if (severities.length > 0)
+    lines.push(severities.map(([sev, n]) => `${sev.toLowerCase()} ${n}`).join(" · "));
+  if (r.matches.length > 0) {
+    lines.push("");
+    const pkgWidth = Math.max(...r.matches.map((m) => `${m.package.name}@${m.package.version}`.length));
+    for (const m of r.matches) {
+      const pkg = `${m.package.name}@${m.package.version}`.padEnd(pkgWidth);
+      const fix = m.fixedVersion ? `fix: ${m.fixedVersion}` : "no fix listed";
+      const tags = [m.package.direct ? "direct" : "transitive", ...(m.package.dev ? ["dev"] : [])];
+      lines.push(
+        `${m.advisory.severity.padEnd(8)}  ${pkg}  ${m.advisory.id.padEnd(19)}  ${fix.padEnd(15)}  ${tags.join(", ").padEnd(15)}  ${m.advisory.summary}`,
+      );
+      if (m.uncertain) lines.push(`          ⚠ ${m.uncertain}`);
+    }
+  }
+  return lines.join("\n");
+}
 
 const formatOption = () =>
   new Option("--format <format>", "output format").choices(["text", "json"]).default("text");
@@ -58,7 +106,25 @@ function findingToText(f: Finding): string {
 
 const program = new Command()
   .name("reachscan")
+  .version(ANALYZER_VERSION)
   .description("Find out whether your code can reach a vulnerable dependency function.");
+
+program
+  .command("deps")
+  .description("read package-lock.json and list installed packages with known advisories (OSV)")
+  .argument("<dir>", "path to the project to scan")
+  .addOption(formatOption())
+  .option("-o, --out <file>", "write the report to a file")
+  .option("--cache-dir <dir>", "where to cache advisory records", defaultCacheDir())
+  .option("--no-cache", "always download advisory records")
+  .action(async (dir: string, opts: { format: string; out?: string; cacheDir: string; cache: boolean }) => {
+    const source = new OsvApiSource({
+      cacheDir: opts.cache ? opts.cacheDir : null,
+      userAgent: `reachscan/${ANALYZER_VERSION}`,
+    });
+    const report = await scanDependencies(dir, source);
+    emit(opts.format === "json" ? JSON.stringify(report, null, 2) : dependencyReportToText(report), opts.out);
+  });
 
 program
   .command("reach")
@@ -99,4 +165,17 @@ program
     emit(lines.join("\n"), opts.out);
   });
 
-program.parse();
+try {
+  await program.parseAsync();
+} catch (error) {
+  // Expected problems get a one-line message and a distinct exit code; anything else is a bug.
+  if (error instanceof UnsupportedProjectError) {
+    console.error(`Unsupported project: ${error.message}`);
+    process.exitCode = 2;
+  } else if (error instanceof AdvisoryLookupError) {
+    console.error(`Advisory lookup failed: ${error.message}`);
+    process.exitCode = 3;
+  } else {
+    throw error;
+  }
+}

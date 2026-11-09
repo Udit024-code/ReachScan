@@ -1,12 +1,16 @@
 {
   "name": "@reachscan/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "semver": "^7.8.6",
     "ts-morph": "^28.0.0"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.8.0"
   }
 }
