@@ -1,0 +1,7 @@
+{
+  "description": "A route loads a plugin with require(variable). Any plugin could be loaded, including the one that calls _.merge, so the answer must be unknown.",
+  "target": "lodash#merge",
+  "verdict": "unknown",
+  "reasonCodes": ["DYNAMIC_CODE"],
+  "blockerTexts": ["require"]
+}

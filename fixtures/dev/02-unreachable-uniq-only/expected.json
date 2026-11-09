@@ -1,0 +1,6 @@
+{
+  "description": "Project A from the design doc (CommonJS): lodash is only used for uniq and sortBy, and the lodash binding never escapes. res.json() can't be resolved without types, but it can't reach lodash.merge either.",
+  "target": "lodash#merge",
+  "verdict": "unreachable",
+  "reasonCodes": ["TARGET_NEVER_CALLED"]
+}

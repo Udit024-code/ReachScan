@@ -1,0 +1,2 @@
+# Keep line endings stable so file:line evidence is identical on every OS.
+* text=auto eol=lf

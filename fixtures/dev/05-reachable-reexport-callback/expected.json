@@ -1,0 +1,7 @@
+{
+  "description": "merge is re-exported under an alias from a utils barrel, called inside a forEach callback, from a handler registered with router.route(...).put(...).",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["PUT /profile", "applyPatches()", "passed as callback", "deepMerge()"]
+}
