@@ -1,0 +1,7 @@
+{
+  "description": "Namespace import (import * as lodash) called directly inside a route handler.",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["PATCH /config", "lodash.merge()"]
+}

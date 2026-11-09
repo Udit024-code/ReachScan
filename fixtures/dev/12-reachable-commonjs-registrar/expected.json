@@ -1,0 +1,7 @@
+{
+  "description": "Very common CommonJS layout: require(\"./routes\")(app), where routes.js exports a function taking an untyped app. The app parameter isn't recognised as Express, but the handler is still a callback of a function that is called.",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["load src/server.js", "routes()", "passed as callback", "_.merge()"]
+}

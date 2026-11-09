@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { writeFileSync } from "node:fs";
-import { buildCallGraph, type CallSite, type Finding, scanTarget } from "@reachscan/core";
+import { buildCallGraph, buildReport, type CallSite, type Finding, scanTarget } from "@reachscan/core";
 import { Command, Option } from "commander";
 
 const formatOption = () =>
@@ -69,7 +69,9 @@ program
   .option("-o, --out <file>", "write the report to a file")
   .action((dir: string, opts: { target: string; format: string; out?: string }) => {
     const finding = scanTarget(dir, opts.target);
-    emit(opts.format === "json" ? JSON.stringify(finding, null, 2) : findingToText(finding), opts.out);
+    const output =
+      opts.format === "json" ? JSON.stringify(buildReport(dir, [finding]), null, 2) : findingToText(finding);
+    emit(output, opts.out);
   });
 
 program

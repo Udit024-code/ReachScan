@@ -1,0 +1,7 @@
+{
+  "description": "Per-method subpath import (import merge from \"lodash/merge\"), the style lodash recommends for smaller bundles.",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["PUT /prefs", "savePrefs()", "merge()"]
+}

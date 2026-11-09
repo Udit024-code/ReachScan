@@ -1,0 +1,7 @@
+{
+  "description": "Routes are registered inside a function whose app parameter is typed as Express; the handler is a default export from another file.",
+  "target": "lodash#merge",
+  "verdict": "reachable",
+  "reasonCodes": ["PATH_FOUND"],
+  "pathLabels": ["POST /profile → saveProfile", "_.merge()"]
+}

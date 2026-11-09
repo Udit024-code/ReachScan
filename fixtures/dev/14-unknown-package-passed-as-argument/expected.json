@@ -1,0 +1,7 @@
+{
+  "description": "The whole lodash object is passed into another function and called as lib[op](...), with op taken from the URL. merge is never named, but it can run.",
+  "target": "lodash#merge",
+  "verdict": "unknown",
+  "reasonCodes": ["PACKAGE_REFERENCE_ESCAPES"],
+  "blockerTexts": ["_"]
+}

@@ -1,0 +1,6 @@
+{
+  "description": "_.merge is only used in a test file. Test files (*.test.*, *.spec.*, __tests__/, test/, tests/) are not part of the running app and are not scanned.",
+  "target": "lodash#merge",
+  "verdict": "unreachable",
+  "reasonCodes": ["TARGET_NEVER_CALLED"]
+}

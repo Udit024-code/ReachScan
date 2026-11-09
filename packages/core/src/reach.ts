@@ -140,8 +140,18 @@ export function analyzeReachability(graph: CallGraph, target: TargetSpec): Findi
   const parents = searchFromEntries(graph);
   const sites = graph.packageUses.filter((u) => u.kind === "call" && matchesTarget(u.ref, target));
   const unresolvedCalls = graph.calls.filter((c) => c.target.kind === "unresolved");
-  const base = {
+  // Builds the finding with a fixed field order so JSON reports read top-down.
+  const finding = (
+    verdict: Finding["verdict"],
+    reasonCodes: ReasonCode[],
+    path: PathStep[] | null,
+    blockers: Finding["blockers"],
+  ): Finding => ({
     target: target.label,
+    verdict,
+    reasonCodes,
+    path,
+    blockers,
     limitations: LIMITATIONS,
     stats: {
       files: graph.files.length,
@@ -150,17 +160,11 @@ export function analyzeReachability(graph: CallGraph, target: TargetSpec): Findi
       unresolvedCalls: unresolvedCalls.length,
       entryPoints: graph.entries.filter((e) => e.kind === "route").length,
     },
-  };
+  });
 
   const reached = sites.find((s) => parents.has(s.callerId));
   if (reached) {
-    return {
-      ...base,
-      verdict: "reachable",
-      reasonCodes: ["PATH_FOUND"],
-      path: buildPath(graph, parents, reached),
-      blockers: [],
-    };
+    return finding("reachable", ["PATH_FOUND"], buildPath(graph, parents, reached), []);
   }
 
   // No path. "Unreachable" is only allowed if nothing we failed to follow could lead to the target.
@@ -209,19 +213,12 @@ export function analyzeReachability(graph: CallGraph, target: TargetSpec): Findi
   }
 
   if (reasons.length > 0) {
-    return {
-      ...base,
-      verdict: "unknown",
-      reasonCodes: reasons,
-      path: null,
-      blockers: blockers.slice(0, MAX_BLOCKERS),
-    };
+    return finding("unknown", reasons, null, blockers.slice(0, MAX_BLOCKERS));
   }
-  return {
-    ...base,
-    verdict: "unreachable",
-    reasonCodes: [sites.length === 0 ? "TARGET_NEVER_CALLED" : "NO_PATH_FROM_ENTRY"],
-    path: null,
-    blockers: [],
-  };
+  return finding(
+    "unreachable",
+    [sites.length === 0 ? "TARGET_NEVER_CALLED" : "NO_PATH_FROM_ENTRY"],
+    null,
+    [],
+  );
 }

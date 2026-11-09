@@ -1,0 +1,8 @@
+{
+  "name": "fixture-13-unreachable-only-in-tests",
+  "private": true,
+  "dependencies": {
+    "express": "^4.21.2",
+    "lodash": "4.17.15"
+  }
+}
