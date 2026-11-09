@@ -1,0 +1,22 @@
+{
+  "note": "Answer from api.osv.dev/v1/querybatch for each package@version in express-lodash/package-lock.json, fetched 2026-11-09. Used to check the local matcher agrees with OSV.",
+  "matches": {
+    "body-parser@1.20.3": ["GHSA-27r3-jxmh-p828", "GHSA-v422-hmwv-36x6"],
+    "lodash@4.17.15": [
+      "GHSA-29mw-wpgm-hmr9",
+      "GHSA-35jh-r3h4-6jhm",
+      "GHSA-p6mc-m468-83gw",
+      "GHSA-r5fr-rjxr-66jc",
+      "GHSA-xxjr-mmjv-4gpg"
+    ],
+    "minimist@1.2.5": ["GHSA-xvch-5gv4-984h"],
+    "path-to-regexp@0.1.12": ["GHSA-37ch-88jc-xwx2"],
+    "qs@6.13.0": [
+      "GHSA-4mjr-xmp4-gh2g",
+      "GHSA-6pq8-jhm2-2vcw",
+      "GHSA-6rw7-vpxm-498p",
+      "GHSA-q8mj-m7cp-5q26",
+      "GHSA-w7fw-mjwx-w883"
+    ]
+  }
+}

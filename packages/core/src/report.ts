@@ -8,7 +8,7 @@ import type { Finding } from "./types.ts";
 export const REPORT_SCHEMA_VERSION = 1;
 
 /** Keep in sync with packages/core/package.json (a test checks this). */
-export const ANALYZER_VERSION = "0.2.0";
+export const ANALYZER_VERSION = "0.3.0";
 
 export interface ScanReport {
   schemaVersion: typeof REPORT_SCHEMA_VERSION;

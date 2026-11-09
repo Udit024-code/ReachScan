@@ -2,9 +2,9 @@
 
 ReachScan tells you which vulnerable dependencies your JavaScript/TypeScript Express app actually calls. It shows the call path as evidence, and it answers **unknown** instead of guessing when it can't be sure.
 
-> Status: week 2. The call-graph core works on 15 fixture apps for a single target such as `lodash#merge`, with a versioned JSON report. Lockfile reading, OSV matching and AI mapping come next.
+> Status: week 3. `reachscan deps` reads `package-lock.json` and matches every installed package against OSV advisories. `reachscan reach` decides whether one package export is reachable (15 fixture apps). Mapping advisories to vulnerable functions (with verified AI) comes next.
 >
-> **[Verdict rules and supported patterns →](docs/verdict-rules.md)**
+> **[Verdict rules and supported patterns →](docs/verdict-rules.md)** · **[Dependencies and advisory matching →](docs/advisory-matching.md)**
 
 ## Quick start
 
@@ -13,6 +13,7 @@ Requires Node 24+. The repo uses npm workspaces.
 ```bash
 npm install
 npm test
+npm run reachscan -- deps packages/core/test/data/lockfiles/express-lodash
 npm run reachscan -- reach fixtures/dev/01-reachable-direct --target lodash#merge
 npm run reachscan -- calls fixtures/dev/01-reachable-direct
 npm run reachscan -- reach fixtures/dev/01-reachable-direct --target lodash#merge --format json --out report.json
@@ -62,7 +63,7 @@ packages/core   analyzer: project loading, call graph, Express entry points, ver
 packages/cli    `reachscan` command line
 fixtures/dev    small apps with an expected.json each (verdict, reason codes, path)
                 (fixtures are only parsed, never installed or run)
-docs/           verdict rules, supported patterns, report format
+docs/           verdict rules, supported patterns, advisory matching, report formats
 ```
 
 ## Known limitations
